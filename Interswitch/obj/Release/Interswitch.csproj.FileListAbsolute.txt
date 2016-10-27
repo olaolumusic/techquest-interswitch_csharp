@@ -20,3 +20,12 @@ C:\Users\babajide.apata\Documents\Visual Studio 2013\Projects\Interswitch\Inters
 C:\Users\babajide.apata\Documents\Visual Studio 2013\Projects\Interswitch\Interswitch\bin\Release\Microsoft.Threading.Tasks.Extensions.dll
 C:\Users\babajide.apata\Documents\Visual Studio 2013\Projects\Interswitch\Interswitch\obj\Release\Interswitch.dll
 C:\Users\babajide.apata\Documents\Visual Studio 2013\Projects\Interswitch\Interswitch\obj\Release\Interswitch.pdb
+C:\ISWPROJECT\techquest-interswitch_csharp\Interswitch\bin\Release\Interswitch.dll.config
+C:\ISWPROJECT\techquest-interswitch_csharp\Interswitch\bin\Release\Interswitch.dll
+C:\ISWPROJECT\techquest-interswitch_csharp\Interswitch\bin\Release\Interswitch.pdb
+C:\ISWPROJECT\techquest-interswitch_csharp\Interswitch\bin\Release\BouncyCastle.Crypto.dll
+C:\ISWPROJECT\techquest-interswitch_csharp\Interswitch\bin\Release\Microsoft.Threading.Tasks.dll
+C:\ISWPROJECT\techquest-interswitch_csharp\Interswitch\bin\Release\Microsoft.Threading.Tasks.Extensions.dll
+C:\ISWPROJECT\techquest-interswitch_csharp\Interswitch\obj\Release\Interswitch.csprojResolveAssemblyReference.cache
+C:\ISWPROJECT\techquest-interswitch_csharp\Interswitch\obj\Release\Interswitch.dll
+C:\ISWPROJECT\techquest-interswitch_csharp\Interswitch\obj\Release\Interswitch.pdb

@@ -8,9 +8,8 @@ namespace Payment
 {
     public class Constants
     {
-        public static string Contenttype = "content-type";
-        public static string Cachecontrol = "cache-control";
-        public static string Authorization = "Authorization";
-        public static string ContentType = "application/x-www-form-urlencoded";
+        public const string Cachecontrol = "cache-control";
+        public const string Authorization = "Authorization";
+        public const string ContentType = "content-type";
     }
 }

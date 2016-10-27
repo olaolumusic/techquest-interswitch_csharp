@@ -11,12 +11,12 @@ namespace Payment
     public class Config
     {
         //public string Authorizations;
-        public static readonly String Sha1 = "Sha1";
-        private String clientID;
-        private String secretKey;
-        private String HTTPVerb;
-        private String url;
-        private String accessToken;
+        public static readonly string Sha1 = "Sha1";
+        private string clientID;
+        private string secretKey;
+        private string HTTPVerb;
+        private string url;
+        private string accessToken;
         public string PostData { get; private set; }
         public string Nonce { get; private set; }
         public string PasportAuthorization { get; private set; }
@@ -33,24 +33,24 @@ namespace Payment
         private static SecureRandom _random = new SecureRandom();
         public long GetTimeStamp()
         {
-            return (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+            return (Int64)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
         }
-        public String GetAuthorization()
+        public string GetAuthorization()
         {
             Authorization = "Bearer " + accessToken;
             return Authorization;
         }
-        public String GetNonce()
+        public string GetNonce()
         {
-            Guid uuid = Guid.NewGuid();
-            String nonce = uuid.ToString();
+            var guid = Guid.NewGuid();
+            var nonce = guid.ToString();
             nonce = nonce.Replace("-", "");
             return nonce;
         }
 
         public string GetSignature()
         {
-            StringBuilder signature = new StringBuilder(HTTPVerb);
+            var signature = new StringBuilder(HTTPVerb);
             signature.Append("&")
                 .Append(Uri.EscapeDataString(url))
                 .Append("&")
@@ -63,7 +63,7 @@ namespace Payment
                 .Append(secretKey);
             return ComputeHash(signature.ToString());
         }
-         
+
         public static string ComputeHash(string input)
         {
             var data = Encoding.UTF8.GetBytes(input);
@@ -73,7 +73,7 @@ namespace Payment
             hash.DoFinal(result, 0);
             return Convert.ToBase64String(result);
         }
-        public Config(String httpVerb, String url, String clientId, String secretKey, String accessToken, String postData, String authorization)
+        public Config(string httpVerb, string url, string clientId, string secretKey, string accessToken, string postData, string authorization)
         {
             HTTPVerb = httpVerb;
             this.url = url;
@@ -87,16 +87,7 @@ namespace Payment
             PasportAuthorization = authorization;
             Signature = GetSignature();
         }
-        public Config(String httpVerb, String url, String clientId, String secretKey, String accessToken)
-        {
-            HTTPVerb = httpVerb;
-            this.url = url;
-            this.accessToken = accessToken;            
-            TimeStamp = GetTimeStamp().ToString();
-            Nonce = GetNonce();
-            Authorization = GetAuthorization();            
-            Signature = GetSignature();
-        }
+
         public Config()
         {
 

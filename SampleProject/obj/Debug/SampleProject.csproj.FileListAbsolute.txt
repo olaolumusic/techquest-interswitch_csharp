@@ -1,1 +1,15 @@
 C:\Users\babajide.apata\Documents\Visual Studio 2013\Projects\PaymentLibrary\SampleProject\obj\Debug\SampleProject.csprojResolveAssemblyReference.cache
+C:\ISWPROJECT\techquest-interswitch_csharp\SampleProject\bin\Debug\SampleProject.exe
+C:\ISWPROJECT\techquest-interswitch_csharp\SampleProject\bin\Debug\SampleProject.pdb
+C:\ISWPROJECT\techquest-interswitch_csharp\SampleProject\bin\Debug\Interswitch.dll
+C:\ISWPROJECT\techquest-interswitch_csharp\SampleProject\bin\Debug\BouncyCastle.Crypto.dll
+C:\ISWPROJECT\techquest-interswitch_csharp\SampleProject\bin\Debug\RestSharp.Portable.dll
+C:\ISWPROJECT\techquest-interswitch_csharp\SampleProject\obj\Debug\SampleProject.csprojResolveAssemblyReference.cache
+C:\ISWPROJECT\techquest-interswitch_csharp\SampleProject\obj\Debug\SampleProject.exe
+C:\ISWPROJECT\techquest-interswitch_csharp\SampleProject\obj\Debug\SampleProject.pdb
+C:\ISWPROJECT\techquest-interswitch_csharp\SampleProject\bin\Debug\Microsoft.Threading.Tasks.dll
+C:\ISWPROJECT\techquest-interswitch_csharp\SampleProject\bin\Debug\Microsoft.Threading.Tasks.Extensions.dll
+C:\ISWPROJECT\techquest-interswitch_csharp\SampleProject\bin\Debug\Microsoft.Threading.Tasks.xml
+C:\ISWPROJECT\techquest-interswitch_csharp\SampleProject\bin\Debug\Microsoft.Threading.Tasks.Extensions.xml
+C:\ISWPROJECT\techquest-interswitch_csharp\SampleProject\bin\Debug\Interswitch.pdb
+C:\ISWPROJECT\techquest-interswitch_csharp\SampleProject\bin\Debug\System.Net.Http.Primitives.dll

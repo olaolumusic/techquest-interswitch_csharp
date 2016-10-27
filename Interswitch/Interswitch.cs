@@ -1,80 +1,80 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Runtime.Serialization;
 using RestSharp.Portable;
 using RestSharp.Portable.Deserializers;
 using System.Net;
 using System.Net.Http;
+using Payment.Models;
 
 namespace Payment
 {
-    
+
     public class Interswitch
     {
-        public string clientId;
-        public string clientSecret;
-        public string myAccessToken;
-        public string environment;
-        public string authData;
+        public static string ClientId;
+        public static string ClientSecret;
+        public static string MyAccessToken;
+        public static string Environment;
+        public static string AuthData;
 
-        public String getAuthdata(string pan, string pin, string expiryDate, string cvv)
-        {            
-            authData = Crypto.GetAuthData(pan,pin,expiryDate,cvv);
-            return authData;
+        public static String GetAuthdata(string pan, string pin, string expiryDate, string cvv)
+        {
+            AuthData = Crypto.GetAuthData(pan, pin, expiryDate, cvv);
+            return AuthData;
         }
-        public String getAuthdata(string  mod, string pubExpo, string pan, string pin, string expiryDate, string cvv)
+        public static string GetAuthdata(string mod, string pubExpo, string pan, string pin, string expiryDate, string cvv)
         {
-             authData = Crypto.GetAuthData(mod,pubExpo, pan, pin, expiryDate, cvv);
-             return authData;
-        } 
-        public String getToken()
+            AuthData = Crypto.GetAuthData(mod, pubExpo, pan, pin, expiryDate, cvv);
+            return AuthData;
+        }
+        public static string GetToken()
         {
-            Token accessToken = GetClientAccessToken(this.clientId,this.clientSecret).Result;            
+            var accessToken = GetClientAccessToken(ClientId, ClientSecret).Result;
             return accessToken.access_token;
         }
-        public long getTimeStamp()
+        public long GetTimeStamp()
         {
-            Config config = new Config();
+            var config = new Config();
             return config.GetTimeStamp();
         }
-        public String getSignature()
+        public string GetSignature()
         {
-            Config config = new Config();
+            var config = new Config();
             return config.GetSignature();
         }
-        public String getNonce()
+        public string GetNonce()
         {
-            Config config = new Config();
+            var config = new Config();
             return config.GetNonce();
         }
 
-        public virtual async Task<Token> GetClientAccessToken(String ClientId, String ClientSecret)
+        public static async Task<Token> GetClientAccessToken(string clientId, string clientSecret)
         {
-            string url = String.Concat(environment,"/passport/oauth/token");
-            RestClient client = new RestClient(url);
+            var url = string.Concat(Environment, "/passport/oauth/token");
+            var client = new RestClient(url);
             client.IgnoreResponseStatusCode = true;
 
             var request = new RestRequest(url, HttpMethod.Post);
-            request.AddHeader(Constants.Contenttype, Constants.ContentType);
-            request.AddHeader(Constants.Authorization, setAuthorization(ClientId, ClientSecret));
+            request.AddHeader(Constants.ContentType, "application/x-www-form-urlencoded");
+            request.AddHeader(Constants.Authorization, SetAuthorization(clientId, clientSecret));
             request.AddParameter("grant_type", "client_credentials", ParameterType.GetOrPost);
             request.AddParameter("Scope", "profile", ParameterType.GetOrPost);
 
-            JsonDeserializer deserial = new JsonDeserializer();
+            var deserial = new JsonDeserializer();
             ServicePointManager.Expect100Continue = true;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-            IRestResponse response = await client.Execute(request);
 
-            HttpStatusCode httpStatusCode = response.StatusCode;
-            int numericStatusCode = (int)httpStatusCode;
-            Token passportResponse = new Token(); ;
+            var response = await client.Execute(request);
+
+            var httpStatusCode = response.StatusCode;
+            var numericStatusCode = (int)httpStatusCode;
+            var passportResponse = new Token();
             if (numericStatusCode == 200)
             {
                 passportResponse = deserial.Deserialize<Token>(response);
-                //Token token = new Token()
+
                 passportResponse.setAccessToken(passportResponse.access_token);
             }
             else if (response.ContentType == "text/html" || (numericStatusCode == 401 || numericStatusCode == 404 || numericStatusCode == 502 || numericStatusCode == 504))
@@ -87,90 +87,74 @@ namespace Payment
                 var errorResponse = deserial.Deserialize<ErrorResponse>(response);
                 passportResponse.ErrorCode = errorResponse.error.code;
                 passportResponse.ErrorMessage = errorResponse.error.message;
-            }            
+            }
             return passportResponse;
         }
-        public virtual async Task<String> send(String uri, String httpMethod, object data)
+        /// <summary>
+        /// Send Payment
+        /// </summary>
+        /// <param name="uri"></param>
+        /// <param name="httpMethod"></param>
+        /// <param name="data"></param>
+        /// <param name="token"></param>
+        /// <param name="hashMap"></param>
+        /// <param name="signedParameters"></param>
+        /// <returns></returns>
+        public static async Task<string> Send(string uri, string httpMethod, object data, string token = null, List<KeyValuePair<string, string>> hashMap = null, string signedParameters = null)
         {
             try
             {
-                string url = String.Concat("http://172.26.40.131:19081", uri);
-                RestClient client = new RestClient(url);
+                var url = string.Concat("http://172.26.40.131:19081", uri);
+                var client = new RestClient(url);
                 client.IgnoreResponseStatusCode = true;
-                IRestResponse response = null;
-                Config authConfig = new Config(httpMethod, url, clientId, clientSecret, myAccessToken, "", "");
-                String purchaseResponse;
+                var authConfig = string.IsNullOrEmpty(token)
+                    ? new Config(httpMethod, url, ClientId, ClientSecret, MyAccessToken, "", "")
+                    : new Config(httpMethod, url, ClientId, ClientSecret, token, "", "");
+
                 var paymentRequests = new RestRequest(url, HttpMethod.Post);
-                paymentRequests.AddHeader(Constants.Contenttype, "application/json");
+
+                #region -- Add Headers --
                 paymentRequests.AddHeader("Signature", authConfig.Signature);
-                paymentRequests.AddHeader("SignatureMethod", "SHA1");
                 paymentRequests.AddHeader("Timestamp", authConfig.TimeStamp);
                 paymentRequests.AddHeader("Nonce", authConfig.Nonce);
-                paymentRequests.AddHeader("Authorization", authConfig.Authorization);                
-                paymentRequests.AddJsonBody(data);
-                ServicePointManager.Expect100Continue = true;
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-                JsonDeserializer deserial = new JsonDeserializer();
-                response = await client.Execute(paymentRequests);
-                HttpStatusCode httpStatusCode = response.StatusCode;
-                int numericStatusCode = (int)httpStatusCode;
-                if (numericStatusCode == 200 || numericStatusCode == 202)
+                paymentRequests.AddHeader("Authorization", authConfig.Authorization);
+
+                if (hashMap != null)
                 {
-                    return System.Text.Encoding.UTF8.GetString(response.RawBytes);
+                    foreach (var keyValue in hashMap)
+                    {
+                        paymentRequests.AddHeader(keyValue.Key, keyValue.Value);
+                    }
                 }
                 else
                 {
-                    return System.Text.Encoding.UTF8.GetString(response.RawBytes);
+                    paymentRequests.AddHeader(Constants.ContentType, "application/json");
+                    paymentRequests.AddHeader("SignatureMethod", "SHA1");
                 }
-                return System.Text.Encoding.UTF8.GetString(response.RawBytes);
+                #endregion
+
+                paymentRequests.AddJsonBody(data);
+
+                ServicePointManager.Expect100Continue = true;
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
+                var response = await client.Execute(paymentRequests);
+                var httpStatusCode = response.StatusCode;
+                var numericStatusCode = (int)httpStatusCode;
+                if (numericStatusCode == 200 || numericStatusCode == 202)
+                {
+                    return Encoding.UTF8.GetString(response.RawBytes);
+                }
+
+                return Encoding.UTF8.GetString(response.RawBytes);
             }
             catch (Exception ex)
             {
                 return ex.ToString();
             }
-            
+
         }
-        public virtual async Task<String> send(String uri, String httpMethod, object data, String token)
-        {
-            try
-            {
-                string url = String.Concat("http://172.26.40.131:19081", uri);
-                RestClient client = new RestClient(url);
-                client.IgnoreResponseStatusCode = true;
-                IRestResponse response = null;
-                Config authConfig = new Config(httpMethod, url, clientId, clientSecret, token, "", "");
-                String purchaseResponse;
-                var paymentRequests = new RestRequest(url, HttpMethod.Post);
-                paymentRequests.AddHeader(Constants.Contenttype, "application/json");
-                paymentRequests.AddHeader("Signature", authConfig.Signature);
-                paymentRequests.AddHeader("SignatureMethod", "SHA1");
-                paymentRequests.AddHeader("Timestamp", authConfig.TimeStamp);
-                paymentRequests.AddHeader("Nonce", authConfig.Nonce);
-                paymentRequests.AddHeader("Authorization", authConfig.Authorization);                
-                paymentRequests.AddJsonBody(data);
-                ServicePointManager.Expect100Continue = true;
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-                JsonDeserializer deserial = new JsonDeserializer();
-                response = await client.Execute(paymentRequests);
-                HttpStatusCode httpStatusCode = response.StatusCode;
-                int numericStatusCode = (int)httpStatusCode;
-                if (numericStatusCode == 200 || numericStatusCode == 202)
-                {
-                    return System.Text.Encoding.UTF8.GetString(response.RawBytes);
-                }
-                else
-                {
-                    return System.Text.Encoding.UTF8.GetString(response.RawBytes);
-                }
-                return System.Text.Encoding.UTF8.GetString(response.RawBytes);
-            }
-            catch (Exception ex)
-            {
-                return ex.ToString();
-            }
-            
-        }
-        public static String setAuthorization(String clientId, String clientSecret)
+        public static string SetAuthorization(string clientId, string clientSecret)
         {
             try
             {
@@ -185,45 +169,16 @@ namespace Payment
                 throw new Exception("Unable to encode parameters, Please contact connect@interswitchng.com. for assistance.", e);
             }
         }
-        public void init(String clientId, String clientSecret)
+
+        public static void Init(string clientId, string clientSecret, string environment = "https://sandbox.interswitchng.com")
         {
-            this.clientId = clientId;
-            this.clientSecret = clientSecret;
-            this.environment = "https://sandbox.interswitchng.com";
-            this.myAccessToken = this.getToken();
-        }
-        public void init(String clientId, String clientSecret, String environment)
-        {
-            this.clientId = clientId;
-            this.clientSecret = clientSecret;
-            this.environment = environment;
-            this.myAccessToken = this.getToken();
+            ClientId = clientId;
+            ClientSecret = clientSecret;
+            Environment = environment;
+            MyAccessToken = GetToken();
         }
     }
-        
-    public class Token
-    {
-        
-        public string access_token { get; set; }       
-        public string token_type { get; set; }       
-        public string refresh_token { get; set; }        
-        public string expires_in { get; set; }        
-        public string scope { get; set; }        
-        public string requestor_id { get; set; }        
-        public string merchant_code { get; set; }        
-        public string email { get; set; }        
-        public string firstName { get; set; }        
-        public string lastName { get; set; }
-        public string payable_id { get; set; }
-        public string payment_code { get; set; }
-        public string jti { get; set; }
-        public string ErrorCode { get; set; }
-        public string ErrorMessage { get; set; }       
-        public void setAccessToken(string token)
-        {
-            this.access_token = token;
-        }
-    }
+
     public class Error1
     {
         public string code { get; set; }
@@ -241,5 +196,5 @@ namespace Payment
         public List<Error1> errors { get; set; }
         public Error2 error { get; set; }
         public string transactionRef { get; set; }
-    }   
+    }
 }
