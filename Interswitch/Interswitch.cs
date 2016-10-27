@@ -34,6 +34,25 @@ namespace Payment
             AuthData = Crypto.GetAuthData(certificatePath, pan, pin, expiryDate, cvv2);
             return AuthData;
         }
+
+        public static String GetSecureData(string pan, string pin, string expiryDate, string cvv)
+        {
+            AuthData = Crypto.GetAuthData(pan, pin, expiryDate, cvv);
+            return AuthData;
+        }
+        public static string GetSecureData(string pan, string pin, string expiryDate, string cvv2, string certificatePath)
+        {
+            AuthData = Crypto.GetAuthData(certificatePath, pan, pin, expiryDate, cvv2);
+            return AuthData;
+        }
+        public static string GetSecureData(string pan, string pin, string expiryDate, string cvv, string mod, string pubExpo, string additionalData = null)
+        {
+            AuthData = Crypto.GetAuthData(mod, pubExpo, pan, pin, expiryDate, cvv);
+            return AuthData;
+        }
+
+
+
         public static string GetToken()
         {
             var accessToken = GetClientAccessToken(ClientId, ClientSecret).Result;
@@ -77,7 +96,7 @@ namespace Payment
             }
             catch (Exception exception)
             {
-                return new Token{ ErrorMessage = exception.Message, ErrorCode = HttpStatusCode.BadRequest.ToString() };
+                return new Token { ErrorMessage = exception.Message, ErrorCode = HttpStatusCode.BadRequest.ToString() };
             }
             var httpStatusCode = response.StatusCode;
             var numericStatusCode = (int)httpStatusCode;

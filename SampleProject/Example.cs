@@ -46,7 +46,6 @@ namespace SampleProject
             Console.WriteLine("*******************************");
             #endregion
 
-
             #region -- Initializing Payment Parameters --
             var rand = new Random();
 
@@ -124,6 +123,7 @@ namespace SampleProject
 
             Console.ReadKey();
             #endregion
+
 
         }
 

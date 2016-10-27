@@ -12,6 +12,7 @@ using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Crypto.Engines;
 using Org.BouncyCastle.Crypto.Encodings;
 using Org.BouncyCastle.Crypto.Generators;
+using Org.BouncyCastle.Crypto.Modes;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.OpenSsl;
 using Org.BouncyCastle.Pkcs;
@@ -54,6 +55,170 @@ namespace Payment
             result = RsaEncryptWithPublicKey(authData, certificatePath);
             return result;
         }
+        public static KeyValuePair<string, string> GetSecureData(string pan, string pin, string expiryDate, string cvv2, string certificatePath = null)
+        {
+            KeyValuePair<String, String> secureData = new KeyValuePair<String, String>();
+
+            byte[] secureBytes = new byte[64];
+            byte[] headerBytes = new byte[1];
+            byte[] formatVersionBytes = new byte[1];
+            byte[] macVersionBytes = new byte[1];
+            byte[] pinDesKey = new byte[16];
+            byte[] macDesKey = new byte[16];
+            byte[] macBytes = new byte[4];
+            byte[] customerIdBytes = new byte[10];
+            byte[] footerBytes = new byte[1];
+            byte[] otherBytes = new byte[14];
+            byte[] keyBytes = GenerateKey();
+
+            Array.Copy(customerIdBytes, 0, secureBytes, 35, 10);
+            Array.Copy(macBytes, 0, secureBytes, 45, 4);
+            Array.Copy(otherBytes, 0, secureBytes, 49, 14);
+            Array.Copy(footerBytes, 0, secureBytes, 63, 1);
+
+            headerBytes = Encoding.ASCII.GetBytes("4D");
+            formatVersionBytes = Encoding.ASCII.GetBytes("10");
+            macVersionBytes = Encoding.ASCII.GetBytes("10");
+            pinDesKey = keyBytes;
+
+
+            if (!string.IsNullOrEmpty(pan))
+            {
+                var panDiff = 20 - pan.Length;
+                var panString = panDiff + pan;
+                var panlen = 20 - panString.Length;
+                for (var i = 0; i < panlen; i++)
+                {
+                    panString += "F";
+                }
+
+                customerIdBytes = Encoding.ASCII.GetBytes(padRight(panString, 20));
+            }
+            String macData = "";
+            macBytes = Hex.Decode(GetMAC(macData, macDesKey, 11));
+            footerBytes = Encoding.ASCII.GetBytes("5A");
+
+            Array.Copy(headerBytes, 0, secureBytes, 0, 1);
+            Array.Copy(formatVersionBytes, 0, secureBytes, 1, 1);
+            Array.Copy(macVersionBytes, 0, secureBytes, 2, 1);
+            Array.Copy(pinDesKey, 0, secureBytes, 3, 16);
+            Array.Copy(macDesKey, 0, secureBytes, 19, 16);
+            Array.Copy(customerIdBytes, 0, secureBytes, 35, 10);
+            Array.Copy(macBytes, 0, secureBytes, 45, 4);
+            Array.Copy(otherBytes, 0, secureBytes, 49, 14);
+            Array.Copy(footerBytes, 0, secureBytes, 63, 1);
+            return  new KeyValuePair<string, string>();
+
+        }
+
+        private static string GetMAC(String macData, byte[] macKey, int macVersion)
+        {
+            byte[] macBytes = new byte[4];
+            byte[] macDataBytes = Encoding.ASCII.GetBytes(macData);
+            byte[] encodedMacBytes;
+            String macCipher1;
+            //SecretKeySpec keyParameters1;
+            //Mac engine1;
+            //if (macVersion == 8)
+            //{
+            //    macCipher1 = "";
+
+            //    try
+            //    {
+            //        keyParameters1 = new SecretKeySpec(macKey, "HmacSHA1");
+            //        engine1 = Mac.getInstance(keyParameters1.getAlgorithm());
+            //        engine1.init(keyParameters1);
+            //        encodedMacBytes = macData.getBytes();
+            //        macBytes = engine1.doFinal(encodedMacBytes);
+            //        macCipher1 = new String(Hex.encode(macBytes), "UTF-8");
+            //    }
+            //    catch (InvalidKeyException var11)
+            //    {
+            //        ;
+            //    }
+            //    catch (NoSuchAlgorithmException var12)
+            //    {
+            //        ;
+            //    }
+            //    catch (UnsupportedEncodingException var13)
+            //    {
+            //        ;
+            //    }
+
+            //    return macCipher1;
+            //}
+            //else if (macVersion == 12)
+            //{
+            //    macCipher1 = "";
+
+            //    try
+            //    {
+            //        keyParameters1 = new SecretKeySpec(macKey, "HmacSHA256");
+            //        engine1 = Mac.getInstance(keyParameters1.getAlgorithm());
+            //        engine1.Init(keyParameters1);
+            //        encodedMacBytes = macData.getBytes();
+            //        macBytes = engine1.doFinal(encodedMacBytes);
+            //        macCipher1 = new String(Hex.Encode(macBytes), "UTF-8");
+            //    }
+            //    catch (InvalidKeyException var14)
+            //    {
+            //        ;
+            //    }
+            //    catch (NoSuchAlgorithmException var15)
+            //    {
+            //        ;
+            //    }
+               
+            //    return macCipher1;
+            //}
+            //else
+            //{
+            //    CbcBlockCipher macCipher = new CbcBlockCipher(
+            //            new DesEdeEngine());
+            //    DesEdeParameters keyParameters = new DesEdeParameters(macKey);
+            //    DesEdeEngine engine = new DesEdeEngine();
+            //    engine.Init(true, keyParameters);
+            //    macCipher.Init(keyParameters);
+
+            //    macCipher.update(macDataBytes, 0, macData.Length);
+            //    macCipher.Final(macBytes, 0);
+            //    encodedMacBytes = Hex.Encode(macBytes);
+            //    String mac = new string(encodedMacBytes);
+            //    return mac;
+            //}
+            return null;
+        }
+
+        private static String padRight(String data, int maxLen)
+        {
+
+            if (data == null || data.Length >= maxLen)
+            {
+                return data;
+            }
+
+            int len = data.Length;
+            int deficitLen = maxLen - len;
+            for (int i = 0; i < deficitLen; i++)
+            {
+                data += "0";
+            }
+
+            return data;
+        }
+        public static byte[] GenerateKey()
+        {
+            var secureRandom = new SecureRandom();
+            var kgp = new KeyGenerationParameters(secureRandom, DesEdeParameters.DesKeyLength * 16);
+            var kg = new DesEdeKeyGenerator();
+            kg.Init(kgp);
+
+            byte[] desKeyBytes = kg.GenerateKey();
+            DesEdeParameters.SetOddParity(desKeyBytes);
+
+            return desKeyBytes;
+        }
+
         private static string RsaEncryptWithPublicKey(string input, string certificatePath)
         {
             var output = string.Empty;
