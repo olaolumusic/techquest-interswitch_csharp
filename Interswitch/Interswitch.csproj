@@ -68,12 +68,16 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+    <None Include="paymentgateway.cert" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="utils\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="lib\Newtonsoft.Json.dll" />
     <Content Include="lib\RestSharp.Portable.dll" />
+    <Content Include="lib\System.Net.Http.Extensions.dll" />
+    <Content Include="lib\System.Net.Http.Primitives.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

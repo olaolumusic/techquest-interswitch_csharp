@@ -13,3 +13,4 @@ C:\ISWPROJECT\techquest-interswitch_csharp\SampleProject\bin\Debug\Microsoft.Thr
 C:\ISWPROJECT\techquest-interswitch_csharp\SampleProject\bin\Debug\Microsoft.Threading.Tasks.Extensions.xml
 C:\ISWPROJECT\techquest-interswitch_csharp\SampleProject\bin\Debug\Interswitch.pdb
 C:\ISWPROJECT\techquest-interswitch_csharp\SampleProject\bin\Debug\System.Net.Http.Primitives.dll
+C:\ISWPROJECT\techquest-interswitch_csharp\SampleProject\bin\Debug\Newtonsoft.Json.dll

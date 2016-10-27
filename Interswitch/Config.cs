@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System; 
+using System.Text; 
 using Org.BouncyCastle.Crypto.Digests;
 using Org.BouncyCastle.Security;
 
@@ -11,7 +8,6 @@ namespace Payment
     public class Config
     {
         //public string Authorizations;
-        public static readonly string Sha1 = "Sha1";
         private string clientID;
         private string secretKey;
         private string HTTPVerb;
@@ -23,21 +19,16 @@ namespace Payment
         public string TimeStamp { get; set; }
         public string Authorization { get; private set; }
         public string Signature { get; set; }
-        public static SecureRandom Random
-        {
-            get { return _random; }
-            set { _random = value; }
-        }
+        public static SecureRandom Random { get; set; } = new SecureRandom();
 
 
-        private static SecureRandom _random = new SecureRandom();
         public long GetTimeStamp()
         {
             return (Int64)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
         }
         public string GetAuthorization()
         {
-            Authorization = "Bearer " + accessToken;
+            Authorization = Constants.Bearer + accessToken;
             return Authorization;
         }
         public string GetNonce()

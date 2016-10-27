@@ -59,10 +59,8 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="lib\Interswitch.dll" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="packages.config" />
+    <None Include="bin\Debug\paymentgateway.cert" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Interswitch\Interswitch.csproj">

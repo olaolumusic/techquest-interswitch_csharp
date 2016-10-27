@@ -19,14 +19,19 @@ namespace Payment
         public static string Environment;
         public static string AuthData;
 
-        public static String GetAuthdata(string pan, string pin, string expiryDate, string cvv)
+        public static String GetAuthData(string pan, string pin, string expiryDate, string cvv)
         {
             AuthData = Crypto.GetAuthData(pan, pin, expiryDate, cvv);
             return AuthData;
         }
-        public static string GetAuthdata(string mod, string pubExpo, string pan, string pin, string expiryDate, string cvv)
+        public static string GetAuthData(string mod, string pubExpo, string pan, string pin, string expiryDate, string cvv)
         {
             AuthData = Crypto.GetAuthData(mod, pubExpo, pan, pin, expiryDate, cvv);
+            return AuthData;
+        }
+        public static string GetAuthData(string certificatePath, string pan, string pin, string expiryDate, string cvv2)
+        {
+            AuthData = Crypto.GetAuthData(certificatePath, pan, pin, expiryDate, cvv2);
             return AuthData;
         }
         public static string GetToken()
@@ -62,16 +67,22 @@ namespace Payment
             request.AddParameter("grant_type", "client_credentials", ParameterType.GetOrPost);
             request.AddParameter("Scope", "profile", ParameterType.GetOrPost);
 
-            var deserial = new JsonDeserializer();
+            JsonDeserializer deserial = new JsonDeserializer();
             ServicePointManager.Expect100Continue = true;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-
-            var response = await client.Execute(request);
-
+            IRestResponse response;
+            try
+            {
+                response = await client.Execute(request);
+            }
+            catch (Exception exception)
+            {
+                return new Token{ ErrorMessage = exception.Message, ErrorCode = HttpStatusCode.BadRequest.ToString() };
+            }
             var httpStatusCode = response.StatusCode;
             var numericStatusCode = (int)httpStatusCode;
             var passportResponse = new Token();
-            if (numericStatusCode == 200)
+            if (numericStatusCode == (int)HttpStatusCode.OK)
             {
                 passportResponse = deserial.Deserialize<Token>(response);
 
@@ -104,7 +115,7 @@ namespace Payment
         {
             try
             {
-                var url = string.Concat("http://172.26.40.131:19081", uri);
+                var url = string.Concat("http://172.26.40.133:19081", uri);
                 var client = new RestClient(url);
                 client.IgnoreResponseStatusCode = true;
                 var authConfig = string.IsNullOrEmpty(token)

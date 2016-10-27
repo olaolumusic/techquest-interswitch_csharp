@@ -11,5 +11,6 @@ namespace Payment
         public const string Cachecontrol = "cache-control";
         public const string Authorization = "Authorization";
         public const string ContentType = "content-type";
+        public const string Bearer = "Bearer ";
     }
 }
